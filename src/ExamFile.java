@@ -1,8 +1,5 @@
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import org.apache.commons.io.FilenameUtils;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -15,14 +12,17 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class ExamFile {
 
-    
-    
-    
-    
+    private final ArrayList<Question> allQuestions;
 
-    public ExamFile(String uri){
+    public ArrayList<Question> getPaper(String courseCode) {
 
-    
+        return allQuestions;
+    }
+
+    public ExamFile() {
+
+        allQuestions = new ArrayList<>();
+
     }
 
 }

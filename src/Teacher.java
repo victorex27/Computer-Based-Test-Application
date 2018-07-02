@@ -31,30 +31,24 @@ public class Teacher extends Person {
     private static final char DEFAULT_QUOTE = '"';
 
     private static Connection connection;
-    private PreparedStatement pStatement;
-    private ResultSet resultSet;
 
-    public Teacher() throws SQLException, ClassNotFoundException {
+    private ArrayList<Question> allQuestions;
+    // this is the minimum number of options
+    private final static int NO_OF_OPTIONS = 3;
 
-        connection = SimpleConnection.getConnection();
+    public Teacher() {
 
-        String queryString = "SELECT * FROM person";
-        pStatement = connection.prepareStatement(queryString);
-        resultSet = pStatement.executeQuery();
-        Logger.getLogger(Teacher.class.getName()).log(Level.SEVERE, "started");
-        while (resultSet.next()) {
-
-            System.out.println(resultSet.getInt(1));
-        }
-        Logger.getLogger(Teacher.class.getName()).log(Level.SEVERE, "finished");
-    }
-
-    private boolean isFormatValid(String uri) throws Exception {
         /**
          * These are the allowed extension for version 1 which is csv
          *
          */
         ALLOWEDEXTENSION.add("csv");
+
+        allQuestions = new ArrayList();
+
+    }
+
+    private boolean isFormatValid(String uri) throws Exception {
 
         String ext = FilenameUtils.getExtension(uri);
 
@@ -62,6 +56,7 @@ public class Teacher extends Person {
         if (!ALLOWEDEXTENSION.contains(ext)) {
             throw new Exception("Invalid File Format");
         }
+        System.out.println("File Format is valid");
         return true;
     }
 
@@ -70,6 +65,7 @@ public class Teacher extends Person {
         if (!file.exists() || file.isDirectory()) {
             throw new FileNotFoundException();
         }
+        System.out.println("File is valid");
         return true;
     }
 
@@ -86,25 +82,70 @@ public class Teacher extends Person {
 
         isFileValid(file);
 
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNext()) {
-            List<String> line = parseLine(scanner.nextLine());
-            System.out.println("Country [id= " + line.get(0) + ", code= " + line.get(1) + " , name=" + line.get(2) + "]");
+        try (Scanner scanner = new Scanner(file)) {
+            int count = 0;
+            while (scanner.hasNext()) {
+
+                Question q = null;
+                String questionText = null;
+                String optionA = null;
+                String optionB = null;
+                String optionC = null;
+                String optionD = null;
+                String optionE = null;
+
+                //Question q = new Question.Builder(question, a, b).build();
+                List<String> line = parseLine(scanner.nextLine());
+                int size = line.size();
+                if (size - 1 < NO_OF_OPTIONS) {
+                    throw new Exception("Your Options must be More than three");
+                }
+                if (count <= size) {
+
+                    switch (count) {
+
+                        case 0:
+                            questionText = line.get(count);
+                            break;
+                        case 1:
+                            optionA = line.get(count);
+                            break;
+                        case 2:
+                            optionB = line.get(count);
+                            break;
+                        case 3:
+                            optionC = line.get(count);
+                            break;
+                        case 4:
+                            optionD = line.get(count);
+                            break;
+                        case 5:
+                            optionE = line.get(count);
+                            break;
+
+                    }
+
+                    count++;
+                }
+
+                q = new Question.Builder(questionText, optionA, optionB).addC(optionC).addD(optionD).addE(optionE).build();
+                allQuestions.add(q);
+
+            }
         }
-        scanner.close();
 
         return true;
     }
 
-    public static List<String> parseLine(String cvsLine) {
+    private static List<String> parseLine(String cvsLine) {
         return parseLine(cvsLine, DEFAULT_SEPARATOR, DEFAULT_QUOTE);
     }
 
-    public static List<String> parseLine(String cvsLine, char separators) {
+    private static List<String> parseLine(String cvsLine, char separators) {
         return parseLine(cvsLine, separators, DEFAULT_QUOTE);
     }
 
-    public static List<String> parseLine(String cvsLine, char separators, char customQuote) {
+    private static List<String> parseLine(String cvsLine, char separators, char customQuote) {
 
         List<String> result = new ArrayList<>();
 
@@ -186,5 +227,42 @@ public class Teacher extends Person {
         result.add(curVal.toString());
 
         return result;
+    }
+
+    public ArrayList<Course> getCourses() throws SQLException, ClassNotFoundException, Exception {
+
+        ArrayList<Course> subjects = new ArrayList<>();
+        connection = SimpleConnection.getConnection();
+
+        String sqlQuery = "SELECT course.id, course_code, course_title "
+                + "FROM course "
+                + "INNER JOIN teacher "
+                + "ON course.id = teacher.course_id "
+                + "where teacher.person_id = ? ";
+
+        PreparedStatement pStatement = connection.prepareStatement(sqlQuery);
+
+        pStatement.setInt(1, this.getId());
+
+        ResultSet resultSet = pStatement.executeQuery();
+
+        if (!resultSet.next()) {
+
+            connection.close();
+            throw new Exception("No record Found");
+
+        } else {
+            resultSet.beforeFirst();
+            while (resultSet.next()) {
+
+                subjects.add(new Course(resultSet.getInt("id"), resultSet.getString("course_code"), resultSet.getString("course_title")));
+
+            }
+        }
+
+        connection.close();
+
+        return subjects;
+
     }
 }
