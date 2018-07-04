@@ -4,18 +4,21 @@
  * and open the template in the editor.
  */
 
+import Frame.QuestionFXMLController;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
@@ -87,6 +90,19 @@ public class THomeFXMLDocumentController implements Initializable {
             vBox.getChildren().add(link);
 
         });
+        
+        //rightPane.getChildren().clear();
+        
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("Frame/QuestionFXML.fxml"));
+        //AnchorPane anchor = (AnchorPane)loader.load();
+        //QuestionFXMLController controller = loader.getController();
+        
+        
+        //controller.setTextFields("kjdfsjkjd", "fdf", "ff", "ddd", "dffd", "fddd");
+        //controller.setQuestion("Hello");
+        //controller.setOptionD("garri");
+        
+        //rightPane.getChildren().add(anchor);
 
     }
 

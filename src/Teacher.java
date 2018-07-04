@@ -265,4 +265,8 @@ public class Teacher extends Person {
         return subjects;
 
     }
+
+    public ArrayList<Question> getAllQuestions() {
+        return allQuestions;
+    }
 }
