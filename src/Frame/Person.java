@@ -1,4 +1,7 @@
+package Frame;
 
+
+import Frame.SimpleConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,17 +18,19 @@ import java.sql.SQLException;
  */
 public class Person {
 
-    private int id;
+    private String id;
     private String firstName;
     private String middleName;
     private String lastName;
     private AccessLevel accessLevel;
 
-    private void setId(int id) {
+    private void setId(String id) {
+        
         this.id = id;
+        
     }
 
-    public int getId() {
+    public String getId() {
 
         return this.id;
     }
@@ -72,7 +77,7 @@ public class Person {
 
         if (resultSet.next()) {
 
-            setId(resultSet.getInt("id"));
+            setId(resultSet.getString("id"));
             setFirstName(resultSet.getString("first_name"));
             setLastName(resultSet.getString("last_name"));
             setMiddleName(resultSet.getString("middle_name"));

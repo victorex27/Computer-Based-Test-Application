@@ -1,4 +1,9 @@
+package Frame;
 
+
+import Frame.Course;
+import Frame.SimpleConnection;
+import Frame.Question;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
@@ -8,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
@@ -35,6 +41,8 @@ public class Teacher extends Person {
     private ArrayList<Question> allQuestions;
     // this is the minimum number of options
     private final static int NO_OF_OPTIONS = 3;
+
+    private static AtomicInteger atomicInteger = new AtomicInteger(0);
 
     public Teacher() {
 
@@ -83,8 +91,10 @@ public class Teacher extends Person {
         isFileValid(file);
 
         try (Scanner scanner = new Scanner(file)) {
-            int count = 0;
+
             while (scanner.hasNext()) {
+
+                int count = 0;
 
                 Question q = null;
                 String questionText = null;
@@ -100,7 +110,7 @@ public class Teacher extends Person {
                 if (size - 1 < NO_OF_OPTIONS) {
                     throw new Exception("Your Options must be More than three");
                 }
-                if (count <= size) {
+                while (count < size) {
 
                     switch (count) {
 
@@ -134,7 +144,71 @@ public class Teacher extends Person {
             }
         }
 
+        addToDatabase(/*Question q */);
         return true;
+    }
+
+    private PreparedStatement setQueryValues(PreparedStatement pStatement) {
+
+        allQuestions.forEach(q -> {
+
+            int a = 7 * atomicInteger.getAndIncrement();
+
+            try {
+                Logger.getLogger(Teacher.class.getName()).log(Level.SEVERE, "pStatement", "");
+                pStatement.setInt(a + 1, 1);
+                pStatement.setString(a + 2, q.getQuestion());
+                pStatement.setString(a + 3, q.getA());
+                pStatement.setString(a + 4, q.getB());
+                pStatement.setString(a + 5, q.getC());
+                pStatement.setString(a + 6, q.getD());
+                pStatement.setString(a + 7, q.getE());
+
+            } catch (Exception ex) {
+                Logger.getLogger(Teacher.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        });
+
+        return pStatement;
+
+    }
+
+    private void addToDatabase(/*Question q */) throws SQLException {
+
+        try {
+            int sizeOfQuestion = allQuestions.size();
+            if (sizeOfQuestion < 1) {
+                throw new Exception("Invalid Operation");
+            }
+
+           
+
+            String sqlQuery = "INSERT INTO exam_question(teacher_id, question, a, b, c, d, e) VALUES (?,?,?,?,?,?,?) ";
+
+            while (sizeOfQuestion > 1) {
+
+                sqlQuery += " ,(?,?,?,?,?,?,?) ";
+
+                sizeOfQuestion--;
+            }
+
+            connection = SimpleConnection.getConnection();
+            PreparedStatement pStatement = connection.prepareStatement(sqlQuery);
+
+            pStatement = setQueryValues(pStatement);
+            System.out.println(""+pStatement.executeUpdate());
+
+            
+                
+
+        } catch (Exception ex) {
+            Logger.getLogger(Teacher.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }finally{
+        
+            connection.close();
+        }
     }
 
     private static List<String> parseLine(String cvsLine) {
@@ -242,7 +316,7 @@ public class Teacher extends Person {
 
         PreparedStatement pStatement = connection.prepareStatement(sqlQuery);
 
-        pStatement.setInt(1, this.getId());
+        pStatement.setString(1, this.getId());
 
         ResultSet resultSet = pStatement.executeQuery();
 

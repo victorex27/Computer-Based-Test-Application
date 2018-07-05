@@ -52,6 +52,7 @@ public class FrameFXMLController implements Initializable {
 
             Stage stage = (Stage) closeButton.getScene().getWindow();
             stage.close();
+            System.exit(0);
             //this.stage.initStyle(StageStyle.UNDECORATED);
             //primaryStage.setScene(scene);
             //primaryStage.initStyle(StageStyle.UNDECORATED);

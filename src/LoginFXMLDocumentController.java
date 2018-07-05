@@ -1,9 +1,14 @@
+
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
+import Frame.ScreenController;
+import Frame.Person;
+import Frame.Student;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -50,16 +55,20 @@ public class LoginFXMLDocumentController implements Initializable {
                 
             }
             
-            Person person = new Teacher();
+            Person person = new Student();
             /* Remember to change*/
-            if (!person.login("2008162972", "password")) {
+            if (!person.login("a", "password")) {
                 throw new Exception("Incorrect Username and Password Combination");
             }
             
             switch (person.getAccessLevel()) {
                 case STUDENT:
+                   
+                    THomeFXMLDocumentController.setPerson(person);
+                    ScreenController.changeScreen(FXMLLoader.load(getClass().getResource("THomeFXMLDocument.fxml")));
                     break;
                 case TEACHER:
+                   
                     THomeFXMLDocumentController.setPerson(person);
                     ScreenController.changeScreen(FXMLLoader.load(getClass().getResource("THomeFXMLDocument.fxml")));
                     break;
